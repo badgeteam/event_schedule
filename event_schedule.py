@@ -222,13 +222,21 @@ class EventSchedule(EventGUI):
             os.mkdir("/lib/event_schedule/day")
         except:
             pass
-
+        # Fuck no directories.
         try:
-            wifi.init()
-            #wifi.connect()
-            #wifi.ntp()
+           os.rename('/lib/event_schedule/0.json','/lib/event_schedule/day/0.json')
         except:
             pass
+        try:
+           os.rename('/lib/event_schedule/1.json','/lib/event_schedule/day/1.json')
+        except:
+            pass
+        try:
+           os.rename('/lib/event_schedule/2.json','/lib/event_schedule/day/2.json')
+        except:
+            pass
+
+
         self.schedule_data = self.download("schedule.json")
         self.days = self.schedule_data["days"]
         self.get_now()
