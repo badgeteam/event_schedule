@@ -1,4 +1,4 @@
-import ugfx, badge, wifi, json, time, utime, deepsleep
+import ugfx, badge, wifi, json, time, utime, deepsleep, easydraw
 import urequests as requests
 from event_schedule import event_alarm
 import os
@@ -66,6 +66,13 @@ class EventGUI():
         ugfx.flush()
 
     def showhomescreen(self,position):
+        if badge.nvs_get_u8('splash', 'nickname', True):
+              position += easydraw.nickname()
+              position += 4
+              ugfx.line(0, position, ugfx.width(), position, ugfx.BLACK)
+              position += 4
+        ugfx.line(0, ugfx.height()-16, ugfx.width(), ugfx.height()-16, ugfx.BLACK)
+
         if len(sorted(self.later.keys())) and sorted(self.later.keys())[0]['timestamp'] < time.time():
             self.get_later()
         ugfx.string(5, position, "Upcoming", "Roboto_Regular18", ugfx.BLACK)
@@ -474,4 +481,3 @@ class HackerHotelSchedule(EventSchedule):
 
 schedule=HackerHotelSchedule()
 schedule.init()
-schedule.run()
