@@ -6,21 +6,35 @@ import os
 callback = lambda: print("NO CALLBACK?!?!?!")
 
 class EventGUI():
-
-    def splitlines(self,txt,width):
-        smallletters=['ijl !1t():\'.,']
-        halfletters=['IJT[]']
+    # {chr(i):ugfx.get_string_width(chr(i),'pixelade13') for i in range(0,256) if ugfx.get_string_width(chr(i),'pixelade13')!=6}
+    charwidths={
+    'Roboto_Regular12': {'^': 5, 'Y': 7, 'X': 8, '[': 3, 'Z': 7, '%': 9, '$': 7, "'": 2, '&': 7,
+                '!': 3, ' ': 3, '#': 7, '"': 4, '-': 3, ',': 2, '/': 5, '.': 3, ')': 4,
+                '(': 4, '+': 7, '*': 5, '5': 7, '4': 7, '7': 7, '6': 7, '1': 7, '0': 7,
+                '3': 7, '2': 7, '=': 7, '9': 7, '8': 7, ';': 3, ':': 3, '\x00': 0, '\t': 87,
+                'd': 7, 'g': 7, 'f': 4, 'a': 7, '`': 4, 'b': 7, 'm': 11, 'l': 3, 'o': 7,
+                'n': 7, 'i': 3, 'h': 7, 'j': 3, 'u': 7, 't': 4, 'w': 9, 'q': 7, 'p': 7,
+                'r': 4, '}': 4, '|': 3, '~': 8, '{': 4, 'E': 7, 'D': 8, 'G': 8, 'F': 7,
+                'A': 8, '@': 11, 'C': 8, 'B': 7, 'M': 10, 'O': 8, 'N': 9, 'I': 3, 'H': 9,
+                'K': 8, 'J': 7, 'U': 8, 'T': 7, 'W': 11, 'V': 8, 'Q': 8, 'P': 8, 'S': 7,
+                'R': 7, ']': 3, '\\': 5, '_': 5},
+     'pixelade13': {'r': 5, ',': 3, ';': 3, ':': 3, '/': 8, '.': 2, ')': 4, '(': 4, 'e': 5,
+                '\x00': 0, 'E': 5, '7': 5, 'F': 5, 'w': 8, '@': 8, 'z': 5, '\t': 64,
+                'M': 7, '{': 4, '|': 3, '}': 4, 'I': 4, '~': 5, 'T': 7, 'W': 8, '%': 8,
+                '$': 7, ']': 4, '\\': 8, '!': 2, '^': 4, ' ': 3, "'": 3, '[': 4, 'a': 5,
+                '`': 3, 'c': 5, 'b': 5, 'm': 8, 'l': 3, 'o': 5, '&': 8, 'i': 3, '#': 8,
+                '"': 4, '1': 3, 'j': 3, 't': 3, 'u': 5, 'v': 5, '-': 5, 'p': 5, 's': 5}
+    }
+    def splitlines(self,txt,width,font):
         words=txt.split(" ")
         sentencelen=0
         sentence=""
         lines=[]
         for word in words:
-            wordlen=2
+            wordlen=self.charwidths[font][' ']
             for letter in word:
-                if letter in smallletters:
-                    wordlen+=2
-                elif letter in halfletters:
-                    wordlen+=4
+                if letter in self.charwidths[font]:
+                    wordlen+=self.charwidths[font][letter]
                 else:
                     wordlen+=6
             if sentencelen+wordlen<width:
@@ -67,10 +81,10 @@ class EventGUI():
 
     def showhomescreen(self,position):
         if badge.nvs_get_u8('splash', 'nickname', True):
-              position += easydraw.nickname()
-              position += 4
-              ugfx.line(0, position, ugfx.width(), position, ugfx.BLACK)
-              position += 4
+            position += easydraw.nickname()
+            position += 4
+            ugfx.line(0, position, ugfx.width(), position, ugfx.BLACK)
+            position += 4
         ugfx.line(0, ugfx.height()-16, ugfx.width(), ugfx.height()-16, ugfx.BLACK)
 
         if len(sorted(self.later.keys())) and sorted(self.later.keys())[0]['timestamp'] < time.time():
@@ -90,7 +104,7 @@ class EventGUI():
                 window.text(3,0,talk['day']+" "+talk['start']+": "+talk['title'],ugfx.BLACK)
             else:
                 window.text(3,0,talk['day']+" "+talk['start']+("    @@" if event_alarm.alarm_exists(talk['guid']) else "") ,ugfx.BLACK)
-                lines = self.splitlines(talk['title'],ugfx.width()-4)
+                lines = self.splitlines(talk['title'],ugfx.width()-4,'pixelade13')
                 for j in range(0,2):
                     if len(lines) > j:
                         window.text(3,12+12*j,lines[j],ugfx.BLACK)
@@ -113,7 +127,7 @@ class EventGUI():
                     window.text(3,0,self.schedule_data["days"][self.day]+" "+self.talks[i+skip]['start']+": "+self.talks[i+skip]['title'],ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
                 else:
                     window.text(3,0,self.schedule_data["days"][self.day]+" "+self.talks[i+skip]['start']+("    @@" if event_alarm.alarm_exists(self.talks[i+skip]['guid']) else ""),ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
-                    lines = self.splitlines(self.talks[i+skip]['title'],ugfx.width()-4)
+                    lines = self.splitlines(self.talks[i+skip]['title'],ugfx.width()-4,'pixelade13')
                     for j in range(0,3):
                         if len(lines) > j:
                             window.text(3,12+12*j,lines[j],ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
@@ -139,7 +153,7 @@ class EventGUI():
                     window.text(3,0,self.talks[i+skip]['day']+" "+self.talks[i+skip]['start']+": "+self.talks[i+skip]['title'],ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
                 else:
                     window.text(3,0,self.talks[i+skip]['day']+" "+self.talks[i+skip]['start']+("    @@" if event_alarm.alarm_exists(self.talks[i+skip]['guid']) else "") ,ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
-                    lines = self.splitlines(self.talks[i+skip]['title'],ugfx.width()-4)
+                    lines = self.splitlines(self.talks[i+skip]['title'],ugfx.width()-4,'pixelade13')
                     for j in range(0,3):
                         if len(lines) > j:
                             window.text(3,12+12*j,lines[j],ugfx.BLACK if i+skip!=self.talkselect else ugfx.WHITE)
@@ -183,7 +197,7 @@ class EventSchedule(EventGUI):
     days = {}
     rooms = {}
     talks = {}
-    
+
     dayselect = None
     talkselect = None
     roomselect = None
@@ -232,15 +246,15 @@ class EventSchedule(EventGUI):
             pass
         # Fuck no directories.
         try:
-           os.rename('/lib/event_schedule/0.json','/lib/event_schedule/day/0.json')
+            os.rename('/lib/event_schedule/0.json','/lib/event_schedule/day/0.json')
         except:
             pass
         try:
-           os.rename('/lib/event_schedule/1.json','/lib/event_schedule/day/1.json')
+            os.rename('/lib/event_schedule/1.json','/lib/event_schedule/day/1.json')
         except:
             pass
         try:
-           os.rename('/lib/event_schedule/2.json','/lib/event_schedule/day/2.json')
+            os.rename('/lib/event_schedule/2.json','/lib/event_schedule/day/2.json')
         except:
             pass
 
@@ -320,7 +334,7 @@ class EventSchedule(EventGUI):
         self.dayselect = 0 if self.dayselect == None else self.dayselect
     def initscreen_day(self):
         self.day = sorted(self.schedule_data['days'])[ self.dayselect ]
-        self.rooms = [ room for room in self.day_data[self.day]['rooms'] ] 
+        self.rooms = [ room for room in self.day_data[self.day]['rooms'] ]
         self.rooms.sort()
         self.roomselect = 0 if self.roomselect == None or self.oldscreen!="room" else self.roomselect
     def initscreen_room(self):
@@ -346,9 +360,9 @@ class EventSchedule(EventGUI):
         self.talk['room'] = self.room if self.oldscreen=='room' else self.talk['room']
         self.talk['day'] = self.day if self.oldscreen=='room' else self.talk['day']
         self.details = self.download("event/"+self.talk['guid'])
-        self.lineselect = 0 
+        self.lineselect = 0
         stringlen = int(ugfx.width() / 6)
-        self.lines = self.splitlines(self.details['description'],ugfx.width()-4)
+        self.lines = self.splitlines(self.details['description'],ugfx.width()-4,'Roboto_Regular12')
         self.maxlines = int((ugfx.height()-75-45)/15)
 
     def drawscreen(self):
@@ -363,13 +377,13 @@ class EventSchedule(EventGUI):
         if self.screen=="room": self.listtalks()
         if self.screen=="talk": self.talkdetails()
         if self.screen=="alarm": self.listalarms()
-             
+
 
     def knopje(self,selected,active):
         if active:
             getattr(self,"knopje_"+self.screen)(selected)
             self.drawscreen()
-    
+
     def setscreen(self,screen):
         self.screen=screen
 
@@ -386,7 +400,7 @@ class EventSchedule(EventGUI):
               , ugfx.BTN_B      : lambda: self.exitapp()
               , ugfx.BTN_A      : lambda: self.setscreen("alarm")
         }
-        if selected in actions: 
+        if selected in actions:
             actions[selected]()
 
     def knopje_day(self,selected):
@@ -401,7 +415,7 @@ class EventSchedule(EventGUI):
               , ugfx.JOY_RIGHT  : lambda: self.setscreen("room")
               , ugfx.BTN_B      : lambda: self.exitapp()
         }
-        if selected in actions: 
+        if selected in actions:
             actions[selected]()
 
     def knopje_room(self,selected):
@@ -416,7 +430,7 @@ class EventSchedule(EventGUI):
               , ugfx.JOY_RIGHT  : lambda: self.setscreen("talk")
               , ugfx.BTN_B      : lambda: self.exitapp()
         }
-        if selected in actions: 
+        if selected in actions:
             actions[selected]()
 
     def knopje_alarm(self,selected):
@@ -431,7 +445,7 @@ class EventSchedule(EventGUI):
               , ugfx.JOY_RIGHT  : lambda: self.setscreen("talk")
               , ugfx.BTN_B      : lambda: self.exitapp()
         }
-        if selected in actions: 
+        if selected in actions:
             actions[selected]()
 
     def knopje_talk(self,selected):
@@ -447,7 +461,7 @@ class EventSchedule(EventGUI):
               , ugfx.BTN_A      : lambda: event_alarm.alarms_remove(self.talk) if event_alarm.alarm_exists(self.talk['guid']) else event_alarm.alarms_add(self.talk)
               , ugfx.BTN_B      : lambda: self.exitapp()
         }
-        if selected in actions: 
+        if selected in actions:
             actions[selected]()
 
 
