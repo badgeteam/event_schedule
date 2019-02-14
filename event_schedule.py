@@ -1,6 +1,7 @@
 import ugfx, badge, wifi, json, time, utime, deepsleep
 import urequests as requests
 from event_schedule import event_alarm
+import os
 
 callback = lambda: print("NO CALLBACK?!?!?!")
 
@@ -473,3 +474,4 @@ class HackerHotelSchedule(EventSchedule):
 
 schedule=HackerHotelSchedule()
 schedule.init()
+schedule.run()
